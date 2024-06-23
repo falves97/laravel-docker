@@ -1,0 +1,15 @@
+# Production environment override
+services:
+  webserver:
+    build:
+      context: ./frankenphp
+      target: frankenphp_prod
+    environment:
+      APP_SECRET: ${APP_KEY}
+    depends_on:
+      - node
+
+  node:
+    build:
+      context: ./node
+      target: node_prod
