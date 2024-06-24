@@ -6,11 +6,11 @@ if [ "$1" = 'frankenphp' ] || [ "$1" = 'php' ] || [ "$1" = 'bin/console' ]; then
 	# After the installation, the following block can be deleted
 	if [ ! -f composer.json ]; then
 		rm -Rf tmp/
-		composer create-project laravel/laravel tmp --prefer-dist --no-progress --no-interaction --no-install
+		composer create-project laravel/laravel tmp --prefer-dist --no-progress --no-interaction --no-install --no-scripts
 
 		cd tmp
 		cp -Rp . ..
-		cd -
+		cd ..
 		rm -Rf tmp/
 	fi
 
