@@ -1,8 +1,10 @@
 services:
   webserver:
-    build:
-      context: ./frankenphp
-    restart: always
+    image: ${IMAGES_PREFIX:-}app-php
+    restart: unless-stopped
+    environment:
+      APP_URL: https://${SERVER_NAME:-localhost}
+      SERVER_NAME: ${SERVER_NAME:-localhost}
     volumes:
       - caddy_data:/data
       - caddy_config:/config
@@ -20,13 +22,22 @@ services:
         published: ${HTTP3_PORT:-443}
         protocol: udp
 
-  node:
-    build:
-      context: ./node
+  database:
+    image: postgres:alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
+      POSTGRES_USER: ${POSTGRES_USER:-app}
     volumes:
-      - ./:/app
+      - database_data:/var/lib/postgresql/data:rw
+    healthcheck:
+      test: [ "CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER:-app} -d ${POSTGRES_DB:-app}'" ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
 
 volumes:
   caddy_data:
   caddy_config:
-
+  database_data:

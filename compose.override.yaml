@@ -1,7 +1,8 @@
 services:
   webserver:
     build:
-      context: ./frankenphp
+      context: .
+      dockerfile: ./frankenphp/Dockerfile
       target: frankenphp_dev
     volumes:
       - ./:/app
@@ -10,33 +11,39 @@ services:
       # See https://xdebug.org/docs/all_settings#mode
       XDEBUG_MODE: "${XDEBUG_MODE:-off}"
       PHP_IDE_CONFIG: 'serverName=localhost'
+      DB_CONNECTION: ${DB_CONNECTION:-pgsql}
+      DB_HOST: ${DB_HOST:-database}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_DATABASE: ${DB_DATABASE:-app}
+      DB_USERNAME: ${DB_USERNAME:-app}
+      DB_PASSWORD: ${DB_PASSWORD:-!ChangeMe!}
     extra_hosts:
       # Ensure that host.docker.internal is correctly defined on Linux
       - host.docker.internal:host-gateway
     tty: true
     depends_on:
-      - database
+      database:
+        condition: service_healthy
 
   database:
-    image: postgres:alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-app}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
-      POSTGRES_USER: ${POSTGRES_USER:-app}
     ports:
       - ${DATABASE_PORT:-5432}:5432
-    volumes:
-      - database_data:/var/lib/postgresql/data:rw
 
   node:
     build:
-      context: ./node
+      context: .
+      dockerfile: ./node/Dockerfile
       target: node_dev
+    image: ${IMAGES_PREFIX:-}app-node
+    environment:
+      APP_URL: https://${SERVER_NAME:-localhost}
+    volumes:
+      - ./:/app
     ports:
       - 3000:3000
     depends_on:
-      - webserver
+      webserver:
+        condition: service_healthy
 
 volumes:
-    database_data:
+  database_data:

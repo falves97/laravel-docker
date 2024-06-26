@@ -1,12 +1,17 @@
 {
-	frankenphp
+	{$CADDY_GLOBAL_OPTIONS}
+
+    frankenphp {
+        {$FRANKENPHP_CONFIG}
+    }
+
 	order php_server before file_server
 }
 
 # The domain name of your server
-localhost {
-	# Set the webroot to the public/ directory relative to current working directory
-	root public
+{$SERVER_NAME:localhost} {
+	# Set the webroot to the /app/public/ directory
+	root * /app/public
 
 	# Enable compression (optional)
 	encode zstd br gzip
