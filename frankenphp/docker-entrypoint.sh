@@ -20,13 +20,18 @@ if [ "$1" = 'frankenphp' ] || [ "$1" = 'php' ] || [ "$1" = 'artisan' ]; then
 
 	setfacl -R -m u:www-data:rwX -m u:"$(whoami)":rwX storage
 	setfacl -dR -m u:www-data:rwX -m u:"$(whoami)":rwX storage
-fi
 
-if [ ! -f ".env" ]; then
-  cp .env.example .env
-  php artisan key:generate
-  php artisan migrate
-fi
+  if grep -q ^DB_CONNECTION= .env; then
+    if [ "$( find ./database/migrations -iname '*.php' -print -quit )" ]; then
+      php artisan migrate --no-interaction
+    fi
+  fi
 
+  if [ ! -f ".env" ]; then
+    cp .env.example .env
+    php artisan key:generate
+  fi
+
+fi
 
 exec docker-php-entrypoint "$@"
