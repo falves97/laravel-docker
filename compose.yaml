@@ -26,13 +26,13 @@ services:
     image: postgres:alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-app}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
-      POSTGRES_USER: ${POSTGRES_USER:-app}
+      POSTGRES_DB: ${DB_DATABASE:-app}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-!ChangeMe!}
+      POSTGRES_USER: ${DB_USERNAME:-app}
     volumes:
       - database_data:/var/lib/postgresql/data:rw
     healthcheck:
-      test: [ "CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER:-app} -d ${POSTGRES_DB:-app}'" ]
+      test: [ "CMD-SHELL", "sh -c 'pg_isready -U ${DB_USERNAME:-app} -d ${DB_DATABASE:-app}'" ]
       interval: 10s
       timeout: 3s
       retries: 3
