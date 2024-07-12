@@ -15,7 +15,7 @@ if [ ! -f "node/certs/localhost.key" ]; then
 fi
 
 if [ "$1" = 'yarn' ]; then
-  if    [ -f "package.json" ]; then
+  if [ -f "package.json" ]; then
       yarn --non-interactive
   fi
 fi
