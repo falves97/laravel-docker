@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN set -eux; \
 	install-php-extensions \
     @composer \
+    pcntl \
     apcu \
     intl \
     opcache \
@@ -22,11 +23,13 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 
 COPY --link frankenphp/conf.d/app.ini $PHP_INI_DIR/conf.d/
 COPY --link --chmod=755 frankenphp/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
+COPY --link --chmod=755 frankenphp/docker-entrypoint.dev.sh /usr/local/bin/docker-entrypoint-dev
 COPY --link frankenphp/Caddyfile /etc/caddy/Caddyfile
 
 ENTRYPOINT ["docker-entrypoint"]
 HEALTHCHECK CMD curl --fail http://localhost:2019/metrics || exit 1
-CMD [ "frankenphp", "run", "--config", "/etc/caddy/Caddyfile" ]
+#CMD [ "php", "artisan", "octane:frankenphp", "--caddyfile", "/etc/caddy/Caddyfile", "--host", "localhost", "--https", "--http-redirect", "--port", "443", "--admin-port", "2019" ]
+CMD [ "php", "artisan", "octane:start", "--server", "frankenphp" ]
 
 # Dev FrankenPHP image
 FROM frankenphp_base AS frankenphp_dev
@@ -36,13 +39,28 @@ ENV APP_ENV=dev XDEBUG_MODE=off
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
 RUN set -eux; \
-	install-php-extensions \
-		xdebug \
+	install-php-extensions  \
+    xdebug \
 	;
 
+# Install Node.js
+RUN mkdir /usr/local/nvm
+ENV NVM_DIR /usr/local/nvm
+ENV NODE_VERSION 20.16.0
+RUN curl https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash \
+    && . $NVM_DIR/nvm.sh \
+    && nvm install $NODE_VERSION \
+    && nvm alias default $NODE_VERSION \
+    && nvm use default \
+    ;
+
+ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
+ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
+
+ENTRYPOINT ["docker-entrypoint-dev"]
 COPY --link frankenphp/conf.d/app.dev.ini $PHP_INI_DIR/conf.d/
 
-CMD [ "frankenphp", "run", "--config", "/etc/caddy/Caddyfile", "--watch" ]
+CMD [ "php", "artisan", "octane:frankenphp", "--caddyfile", "/etc/caddy/Caddyfile", "--host", "localhost", "--https", "--http-redirect", "--port", "443", "--admin-port", "2019", "--workers", "1", "--max-requests", "1", "--watch" ]
 
 FROM node:20-alpine as node_base
 

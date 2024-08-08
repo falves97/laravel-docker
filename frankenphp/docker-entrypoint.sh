@@ -29,6 +29,11 @@ if [ "$1" = 'frankenphp' ] || [ "$1" = 'php' ] || [ "$1" = 'artisan' ]; then
 
   if [ ! -f ".env" ]; then
     cp .env.example .env
+
+    # Install octane
+    composer require laravel/octane
+    php artisan octane:install --server=frankenphp
+
     php artisan key:generate
   fi
 
