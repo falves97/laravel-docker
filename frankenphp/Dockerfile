@@ -76,8 +76,4 @@ RUN rm -Rf frankenphp/
 
 RUN set -eux; \
     mkdir -p storage/app/public storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs; \
-	php artisan config:cache; \
-	php artisan event:cache; \
-	php artisan route:cache; \
-	php artisan view:cache; \
 	php artisan optimize;
