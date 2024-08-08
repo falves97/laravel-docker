@@ -2,11 +2,11 @@ services:
   webserver:
     build:
       context: .
-      dockerfile: ./frankenphp/Dockerfile
+      dockerfile: ./frankenphp-docker/Dockerfile
       target: frankenphp_dev
     volumes:
       - ./:/app
-      - ./frankenphp/conf.d/app.dev.ini:/usr/local/etc/php/conf.d/app.dev.ini:ro
+      - ./frankenphp-docker/conf.d/app.dev.ini:/usr/local/etc/php/conf.d/app.dev.ini:ro
     environment:
       # See https://xdebug.org/docs/all_settings#mode
       XDEBUG_MODE: "${XDEBUG_MODE:-off}"
