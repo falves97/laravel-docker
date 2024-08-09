@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
 
+# Start cron service
+service cron start
+
 if [ "$1" = 'frankenphp' ] || [ "$1" = 'php' ] || [ "$1" = 'artisan' ]; then
 	# Install the project the first time PHP is started
 	# After the installation, the following block can be deleted

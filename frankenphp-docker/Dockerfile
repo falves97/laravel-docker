@@ -6,6 +6,7 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
 	acl \
+    cron \
 	&& rm -rf /var/lib/apt/lists/*
 
 RUN set -eux; \
@@ -26,10 +27,13 @@ COPY --link --chmod=755 frankenphp-docker/docker-entrypoint.sh /usr/local/bin/do
 COPY --link --chmod=755 frankenphp-docker/docker-entrypoint.dev.sh /usr/local/bin/docker-entrypoint-dev
 COPY --link frankenphp-docker/Caddyfile /etc/caddy/Caddyfile
 
+# Add crontab file in the cron directory
+COPY --link --chmod=0644 frankenphp-docker/crontab /etc/cron.d/cron
+RUN touch /var/log/cron.log
+
 ENTRYPOINT ["docker-entrypoint"]
 HEALTHCHECK CMD curl --fail http://localhost:2019/metrics || exit 1
-#CMD [ "php", "artisan", "octane:frankenphp", "--caddyfile", "/etc/caddy/Caddyfile", "--host", "localhost", "--https", "--http-redirect", "--port", "443", "--admin-port", "2019" ]
-CMD [ "php", "artisan", "octane:start", "--server", "frankenphp" ]
+CMD [ "php", "artisan", "octane:frankenphp", "--caddyfile", "/etc/caddy/Caddyfile", "--host", "localhost", "--https", "--http-redirect", "--port", "443", "--admin-port", "2019" ]
 
 # Dev FrankenPHP image
 FROM frankenphp_base AS frankenphp_dev
