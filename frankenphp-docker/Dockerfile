@@ -38,7 +38,7 @@ CMD [ "php", "artisan", "octane:frankenphp", "--caddyfile", "/etc/caddy/Caddyfil
 # Dev FrankenPHP image
 FROM frankenphp_base AS frankenphp_dev
 
-ENV APP_ENV=dev XDEBUG_MODE=off
+ENV XDEBUG_MODE=off
 
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
@@ -72,13 +72,12 @@ WORKDIR /app
 
 COPY --link . .
 
-RUN yarn && yarn build
-
+RUN npm ci && npm run build
 
 # Prod FrankenPHP image
 FROM frankenphp_base AS frankenphp_prod
 
-ENV APP_ENV=prod
+ENV APP_ENV=production
 
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
@@ -93,7 +92,6 @@ RUN set -eux; \
 
 COPY --link --from=node_base /app/public/build/ public/build
 
-RUN rm -Rf node/
 RUN rm -Rf frankenphp-docker/
 
 RUN set -eux; \
