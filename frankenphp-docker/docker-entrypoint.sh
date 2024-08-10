@@ -32,6 +32,8 @@ if [ "$1" = 'frankenphp' ] || [ "$1" = 'php' ] || [ "$1" = 'artisan' ]; then
 
   if [ ! -f ".env" ]; then
     cp .env.example .env
+    sed -i "s/APP_ENV=local/APP_ENV=$APP_ENV/g" .env
+
     sed -i "s/DB_CONNECTION=sqlite/DB_CONNECTION=$DB_CONNECTION/g" .env
     sed -i "s/# DB_HOST=127.0.0.1/DB_HOST=$DB_HOST/g" .env
     sed -i "s/# DB_PORT=3306/DB_PORT=$DB_PORT/g" .env
