@@ -45,12 +45,12 @@ if [ "$1" = 'frankenphp' ] || [ "$1" = 'php' ] || [ "$1" = 'artisan' ]; then
 
     if [ ! -f ".env" ]; then
         cp .env.example .env
-        sed -i "s/DB_CONNECTION=sqlite/DB_CONNECTION=pgsql/g" .env
-        sed -i "s/# DB_HOST=127.0.0.1/DB_HOST=database/g" .env
-        sed -i "s/# DB_PORT=3306/DB_PORT=5432/g" .env
-        sed -i "s/# DB_DATABASE=laravel/DB_DATABASE=app/g" .env
-        sed -i "s/# DB_USERNAME=root/DB_USERNAME=app/g" .env
-        sed -i "s/# DB_PASSWORD=/DB_PASSWORD=!ChangeMe!/g" .env
+        sed -i "s/DB_CONNECTION=sqlite/DB_CONNECTION=$DB_CONNECTION/g" .env
+        sed -i "s/# DB_HOST=127.0.0.1/DB_HOST=$DB_HOST/g" .env
+        sed -i "s/# DB_PORT=3306/DB_PORT=$DB_PORT/g" .env
+        sed -i "s/# DB_DATABASE=laravel/DB_DATABASE=$DB_DATABASE/g" .env
+        sed -i "s/# DB_USERNAME=root/DB_USERNAME=$DB_USERNAME/g" .env
+        sed -i "s/# DB_PASSWORD=/DB_PASSWORD=$DB_PASSWORD/g" .env
 
         # Install octane
         composer require laravel/octane
