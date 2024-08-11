@@ -38,12 +38,12 @@ if [ "$1" = 'frankenphp' ] || [ "$1" = 'php' ] || [ "$1" = 'artisan' ]; then
     setfacl -dR -m u:www-data:rwX -m u:"$(whoami)":rwX storage
 
     if [ ! -f ".env" ]; then
-        sed -i "s/DB_CONNECTION=sqlite/DB_CONNECTION=$DB_CONNECTION/g" .env.example
-        sed -i "s/# DB_HOST=127.0.0.1/DB_HOST=$DB_HOST/g" .env.example
-        sed -i "s/# DB_PORT=3306/DB_PORT=$DB_PORT/g" .env.example
-        sed -i "s/# DB_DATABASE=laravel/DB_DATABASE=$DB_DATABASE/g" .env.example
-        sed -i "s/# DB_USERNAME=root/DB_USERNAME=$DB_USERNAME/g" .env.example
-        sed -i "s/# DB_PASSWORD=/DB_PASSWORD=$DB_PASSWORD/g" .env.example
+        sed -i "s/.*DB_CONNECTION=.*/DB_CONNECTION=$DB_CONNECTION/g" .env.example
+        sed -i "s/.*DB_HOST=.*/DB_HOST=$DB_HOST/g" .env.example
+        sed -i "s/.*DB_PORT=.*/DB_PORT=$DB_PORT/g" .env.example
+        sed -i "s/.*DB_DATABASE=.*/DB_DATABASE=$DB_DATABASE/g" .env.example
+        sed -i "s/.*DB_USERNAME=.*/DB_USERNAME=$DB_USERNAME/g" .env.example
+        sed -i "s/.*DB_PASSWORD=.*/DB_PASSWORD=$DB_PASSWORD/g" .env.example
         cp .env.example .env
 
         # Install octane
