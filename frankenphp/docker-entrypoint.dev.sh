@@ -6,7 +6,7 @@ service cron start
 
 if [ "$1" = 'frankenphp' ] || [ "$1" = 'php' ] || [ "$1" = 'artisan' ]; then
     if [ ! -f "frankenphp-docker/certs/localhost.key" ]; then
-        cd frankenphp-docker/certs
+        cd frankenphp/certs
         openssl req -newkey rsa:4096 \
             -x509 \
             -sha256 \
@@ -25,6 +25,7 @@ if [ "$1" = 'frankenphp' ] || [ "$1" = 'php' ] || [ "$1" = 'artisan' ]; then
         composer create-project laravel/laravel tmp --prefer-dist --no-progress --no-interaction --no-install --no-scripts
 
         cd tmp
+        rm -f .gitignore
         cp -Rp . ..
         cd ..
         rm -Rf tmp/

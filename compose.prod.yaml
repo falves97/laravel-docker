@@ -3,7 +3,7 @@ services:
   webserver:
     build:
       context: .
-      dockerfile: ./frankenphp-docker/Dockerfile
+      dockerfile: frankenphp/Dockerfile
       target: frankenphp_prod
     environment:
       FRANKENPHP_CONFIG: ''

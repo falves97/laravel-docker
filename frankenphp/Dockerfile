@@ -22,13 +22,13 @@ RUN set -eux; \
 # https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
-COPY --link frankenphp-docker/conf.d/app.ini $PHP_INI_DIR/conf.d/
-COPY --link --chmod=755 frankenphp-docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
-COPY --link --chmod=755 frankenphp-docker/docker-entrypoint.dev.sh /usr/local/bin/docker-entrypoint-dev
-COPY --link frankenphp-docker/Caddyfile /etc/caddy/Caddyfile
+COPY --link frankenphp/conf.d/app.ini $PHP_INI_DIR/conf.d/
+COPY --link --chmod=755 frankenphp/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
+COPY --link --chmod=755 frankenphp/docker-entrypoint.dev.sh /usr/local/bin/docker-entrypoint-dev
+COPY --link frankenphp/Caddyfile /etc/caddy/Caddyfile
 
 # Add crontab file in the cron directory
-COPY --link --chmod=0644 frankenphp-docker/crontab /etc/cron.d/cron
+COPY --link --chmod=0644 frankenphp/crontab /etc/cron.d/cron
 RUN touch /var/log/cron.log
 
 ENTRYPOINT ["docker-entrypoint"]
@@ -62,7 +62,7 @@ ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
 ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
 ENTRYPOINT ["docker-entrypoint-dev"]
-COPY --link frankenphp-docker/conf.d/app.dev.ini $PHP_INI_DIR/conf.d/
+COPY --link frankenphp/conf.d/app.dev.ini $PHP_INI_DIR/conf.d/
 
 CMD [ "php", "artisan", "octane:frankenphp", "--caddyfile", "/etc/caddy/Caddyfile", "--host", "localhost", "--https", "--http-redirect", "--port", "443", "--admin-port", "2019", "--workers", "1", "--max-requests", "1", "--watch" ]
 
@@ -81,7 +81,7 @@ ENV APP_ENV=production
 
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
-COPY --link frankenphp-docker/conf.d/app.prod.ini $PHP_INI_DIR/conf.d/
+COPY --link frankenphp/conf.d/app.prod.ini $PHP_INI_DIR/conf.d/
 
 # copy sources
 COPY --link . .
@@ -92,7 +92,7 @@ RUN set -eux; \
 
 COPY --link --from=node_base /app/public/build/ public/build
 
-RUN rm -Rf frankenphp-docker/
+RUN rm -Rf frankenphp/
 
 RUN set -eux; \
     mkdir -p storage/app/public storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs; \
