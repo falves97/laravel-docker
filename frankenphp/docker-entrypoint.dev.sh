@@ -23,8 +23,16 @@ if [ "$1" = 'frankenphp' ] || [ "$1" = 'php' ] || [ "$1" = 'artisan' ]; then
     if [ ! -f composer.json ]; then
         rm -Rf tmp/
         composer create-project laravel/laravel tmp --prefer-dist --no-progress --no-interaction --no-install --no-scripts
-
         cd tmp
+
+        # Install octane
+        composer require laravel/octane
+        php artisan octane:install --server=frankenphp
+
+        # Necessary for --watch option
+        npm install --save-dev chokidar
+
+        echo "Dentro de $(pwd)" >&2
         rm -f .gitignore
         cp -Rp . ..
         cd ..
@@ -47,14 +55,11 @@ if [ "$1" = 'frankenphp' ] || [ "$1" = 'php' ] || [ "$1" = 'artisan' ]; then
         sed -i "s/.*DB_PASSWORD=.*/DB_PASSWORD=$DB_PASSWORD/g" .env.example
         cp .env.example .env
 
-        # Install octane
-        composer require laravel/octane
-        php artisan octane:install --server=frankenphp
-
         php artisan key:generate
-
-        # Necessary for --watch option
-        npm install --save-dev chokidar
+        echo "Depois de rodar as key:generate" >&2
+        echo "Dentro de $(pwd)" >&2
+        echo "Arquivo .gitignore:  " >&2
+        echo "$(cat .gitignore)" >&2
     fi
 
     if grep -q ^DB_CONNECTION= .env; then
