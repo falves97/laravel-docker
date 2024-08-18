@@ -47,19 +47,24 @@ if [ "$1" = 'frankenphp' ] || [ "$1" = 'php' ] || [ "$1" = 'artisan' ]; then
     setfacl -dR -m u:www-data:rwX -m u:"$(whoami)":rwX storage
 
     if [ ! -f ".env" ]; then
-        sed -i "s/.*DB_CONNECTION=.*/DB_CONNECTION=$DB_CONNECTION/g" .env.example
-        sed -i "s/.*DB_HOST=.*/DB_HOST=$DB_HOST/g" .env.example
-        sed -i "s/.*DB_PORT=.*/DB_PORT=$DB_PORT/g" .env.example
-        sed -i "s/.*DB_DATABASE=.*/DB_DATABASE=$DB_DATABASE/g" .env.example
-        sed -i "s/.*DB_USERNAME=.*/DB_USERNAME=$DB_USERNAME/g" .env.example
-        sed -i "s/.*DB_PASSWORD=.*/DB_PASSWORD=$DB_PASSWORD/g" .env.example
+        sed -i "s/.*DB_CONNECTION=.*/DB_CONNECTION=$DATABASE_CONNECTION/g" .env.example
+        sed -i "s/.*DB_HOST=.*/DB_HOST=$DATABASE_HOST/g" .env.example
+        sed -i "s/.*DB_PORT=.*/DB_PORT=$DATABASE_PORT/g" .env.example
+        sed -i "s/.*DB_DATABASE=.*/DB_DATABASE=$DATABASE_DATABASE/g" .env.example
+        sed -i "s/.*DB_USERNAME=.*/DB_USERNAME=$DATABASE_USERNAME/g" .env.example
+        sed -i "s/.*DB_PASSWORD=.*/DB_PASSWORD=$DATABASE_PASSWORD/g" .env.example
         cp .env.example .env
 
         php artisan key:generate
-        echo "Depois de rodar as key:generate" >&2
-        echo "Dentro de $(pwd)" >&2
-        echo "Arquivo .gitignore:  " >&2
-        echo "$(cat .gitignore)" >&2
+    fi
+
+    if [ ! -f ".env.testing" ]; then
+        cp .env .env.testing
+        php artisan key:generate --env=testing
+        sed -i "s/.*APP_ENV=.*/APP_ENV=testing/g" .env.testing
+        sed -i "s/.*DB_DATABASE=.*/DB_DATABASE=test/g" .env.testing
+        sed -i "s/.*DB_USERNAME=.*/DB_USERNAME=test/g" .env.testing
+        sed -i "s/.*DB_PASSWORD=.*/DB_PASSWORD=test/g" .env.testing
     fi
 
     if grep -q ^DB_CONNECTION= .env; then

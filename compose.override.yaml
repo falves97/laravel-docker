@@ -12,12 +12,12 @@ services:
       XDEBUG_MODE: "${XDEBUG_MODE:-off}"
       # Uncomment this to configure the server name for Xdebug, default is localhost
       # PHP_IDE_CONFIG: 'serverName=localhost'
-      DB_CONNECTION: ${DB_CONNECTION:-pgsql}
-      DB_HOST: ${DB_HOST:-database}
-      DB_PORT: ${DB_PORT:-5432}
-      DB_DATABASE: ${DB_DATABASE:-app}
-      DB_USERNAME: ${DB_USERNAME:-app}
-      DB_PASSWORD: ${DB_PASSWORD:-!ChangeMe!}
+      DATABASE_CONNECTION: ${DB_CONNECTION:-pgsql}
+      DATABASE_HOST: ${DB_HOST:-database}
+      DATABASE_PORT: ${DB_PORT:-5432}
+      DATABASE_DATABASE: ${DB_DATABASE:-app}
+      DATABASE_USERNAME: ${DB_USERNAME:-app}
+      DATABASE_PASSWORD: ${DB_PASSWORD:-!ChangeMe!}
 
     ports:
       # Node.js
