@@ -26,15 +26,8 @@ if [ "$1" = 'frankenphp' ] || [ "$1" = 'php' ] || [ "$1" = 'artisan' ]; then
     setfacl -dR -m u:www-data:rwX -m u:"$(whoami)":rwX storage
 
     if [ ! -f ".env" ]; then
-        sed -i "s/.*APP_ENV=.*/APP_ENV=$APP_ENV/g" .env.example
-
-        sed -i "s/.*DB_CONNECTION=.*/DB_CONNECTION=$DB_CONNECTION/g" .env.example
-        sed -i "s/.*DB_HOST=.*/DB_HOST=$DB_HOST/g" .env.example
-        sed -i "s/.*DB_PORT=.*/DB_PORT=$DB_PORT/g" .env.example
-        sed -i "s/.*DB_DATABASE=.*/DB_DATABASE=$DB_DATABASE/g" .env.example
-        sed -i "s/.*DB_USERNAME=.*/DB_USERNAME=$DB_USERNAME/g" .env.example
-        sed -i "s/.*DB_PASSWORD=.*/DB_PASSWORD=$DB_PASSWORD/g" .env.example
         cp .env.example .env
+        sed -i "s/.*APP_ENV=.*/APP_ENV=$APP_ENV/g" .env
 
         # Install octane
         composer require laravel/octane
