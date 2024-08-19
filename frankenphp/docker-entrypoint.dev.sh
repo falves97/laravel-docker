@@ -43,6 +43,10 @@ if [ "$1" = 'frankenphp' ] || [ "$1" = 'php' ] || [ "$1" = 'artisan' ]; then
         composer install --prefer-dist --no-progress --no-interaction
     fi
 
+    if [ -z "$(ls -A 'node_modules/' 2>/dev/null)" ]; then
+        npm install
+    fi
+
     setfacl -R -m u:www-data:rwX -m u:"$(whoami)":rwX storage
     setfacl -dR -m u:www-data:rwX -m u:"$(whoami)":rwX storage
 
