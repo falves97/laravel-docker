@@ -22,7 +22,7 @@ if [ "$1" = 'frankenphp' ] || [ "$1" = 'php' ] || [ "$1" = 'artisan' ]; then
     # After the installation, the following block can be deleted
     if [ ! -f composer.json ]; then
         rm -Rf tmp/
-        composer create-project laravel/laravel tmp --prefer-dist --no-progress --no-interaction --no-install --no-scripts
+        composer create-project laravel/laravel --stability stable --prefer-dist --no-progress --no-interaction --no-install --no-scripts tmp
         cd tmp
 
         # Install octane
