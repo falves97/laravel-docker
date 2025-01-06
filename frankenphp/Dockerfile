@@ -17,15 +17,15 @@ RUN set -eux; \
     intl \
     opcache \
     pdo_pgsql \
+    zip \
 ;
 
 # https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
 COPY --link frankenphp/conf.d/app.ini $PHP_INI_DIR/conf.d/
-COPY --link --chmod=755 frankenphp/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
-COPY --link --chmod=755 frankenphp/docker-entrypoint.dev.sh /usr/local/bin/docker-entrypoint-dev
 COPY --link frankenphp/Caddyfile /etc/caddy/Caddyfile
+COPY --link --chmod=755 frankenphp/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
 
 # Add crontab file in the cron directory
 COPY --link --chmod=0644 frankenphp/crontab /etc/cron.d/cron
@@ -61,7 +61,6 @@ RUN curl https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash 
 ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
 ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
-ENTRYPOINT ["docker-entrypoint-dev"]
 COPY --link frankenphp/conf.d/app.dev.ini $PHP_INI_DIR/conf.d/
 
 CMD [ "php", "artisan", "octane:frankenphp", "--caddyfile", "/etc/caddy/Caddyfile", "--host", "localhost", "--https", "--http-redirect", "--port", "443", "--admin-port", "2019", "--workers", "1", "--max-requests", "1", "--watch" ]
@@ -78,22 +77,27 @@ RUN npm ci && npm run build
 FROM frankenphp_base AS frankenphp_prod
 
 ENV APP_ENV=production
+ENV APP_DEBUG=false
 
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
 COPY --link frankenphp/conf.d/app.prod.ini $PHP_INI_DIR/conf.d/
 
 # copy sources
-COPY --link . .
+COPY --link composer.* ./
 
 RUN set -eux; \
-	composer install --no-cache --prefer-dist --no-dev --no-progress \
+	composer install --no-cache --prefer-dist --no-dev --no-autoloader --no-scripts --no-progress \
     ;
 
 COPY --link --from=node_base /app/public/build/ public/build
 
+# copy sources
+COPY --link . ./
 RUN rm -Rf frankenphp/
 
 RUN set -eux; \
-    mkdir -p storage/app/public storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs; \
-	php artisan optimize;
+    mkdir -p bootstrap/cache storage/app/public storage/app/private storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs; \
+	composer dump-autoload --classmap-authoritative --no-dev; \
+    sync \
+    ;
