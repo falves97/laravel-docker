@@ -22,22 +22,6 @@ services:
         published: ${HTTP3_PORT:-443}
         protocol: udp
 
-  database:
-    image: postgres:alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${DB_DATABASE:-app}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-!ChangeMe!}
-      POSTGRES_USER: ${DB_USERNAME:-app}
-    volumes:
-      - database_data:/var/lib/postgresql/data:rw
-    healthcheck:
-      test: [ "CMD-SHELL", "sh -c 'pg_isready -U ${DB_USERNAME:-app} -d ${DB_DATABASE:-app}'" ]
-      interval: 10s
-      timeout: 3s
-      retries: 3
-
 volumes:
   caddy_data:
   caddy_config:
-  database_data:

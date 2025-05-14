@@ -3,11 +3,7 @@ services:
   webserver:
     build:
       context: .
-      dockerfile: frankenphp/Dockerfile
       target: frankenphp_prod
     environment:
       FRANKENPHP_CONFIG: ''
-    # Comment this if the app is not using the service database
-    depends_on:
-      database:
-        condition: service_healthy
+
