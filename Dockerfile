@@ -1,5 +1,7 @@
-FROM dunglas/frankenphp:1-php8.3 AS frankenphp_upstream
+#syntax=docker/dockerfile:1
 
+# Versions
+FROM dunglas/frankenphp:1-php8.4 AS frankenphp_upstream
 # Base FrankenPHP image
 FROM frankenphp_upstream AS frankenphp_base
 WORKDIR /app
