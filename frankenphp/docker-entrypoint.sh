@@ -36,7 +36,7 @@ if echo "$@" | grep -qE '(frankenphp|php|artisan)'; then
     # Comment out the following lines if you want to use the default .env.example
     if ! grep -q -P "DB_URL=.*" .env; then
         sed -i "22s/$/\nDB_URL=pgsql:\/\/app:!ChangeMe!@database:5432\/app\n/" .env
-        sed -iE "s/^DB_CONNECTION=\(.*\)/# DB_CONNECTION=\1/" .env
+        sed -i "s/^DB_CONNECTION=\(.*\)/# DB_CONNECTION=\1/" .env
     fi
 
     php artisan key:generate
