@@ -15,3 +15,6 @@ services:
       - host.docker.internal:host-gateway
     tty: true
 
+  database:
+    ports:
+      - "5432:5432"

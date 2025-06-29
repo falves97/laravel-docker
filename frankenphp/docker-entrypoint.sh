@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-if [ "$1" = 'frankenphp' ] || [ "$1" = 'php' ] || [ "$1" = 'artisan' ]; then
+if echo "$@" | grep -qE '(frankenphp|php|artisan)'; then
   # Install the project the first time PHP is started
   # After the installation, the following block can be deleted
   if [ ! -f composer.json ]; then
@@ -34,14 +34,43 @@ if [ "$1" = 'frankenphp' ] || [ "$1" = 'php' ] || [ "$1" = 'artisan' ]; then
     cp .env.example .env
 
     # Comment out the following lines if you want to use the default .env.example
-    sed -i "s/.*DB_CONNECTION=.*/DB_CONNECTION=null/g" .env
-    sed -i "s/.*SESSION_DRIVER=.*/SESSION_DRIVER=file/g" .env
+    if ! grep -q -P "DB_URL=.*" .env; then
+        sed -i "22s/$/\nDB_URL=pgsql:\/\/app:!ChangeMe!@database:5432\/app\n/" .env
+        sed -iE "s/^DB_CONNECTION=\(.*\)/# DB_CONNECTION=\1/" .env
+    fi
 
     php artisan key:generate
   fi
 
   if [ "$APP_ENV" = "production" ]; then
     service cron start
+  fi
+
+  if grep -q ^DB_URL= .env; then
+    echo 'Waiting for database to be ready...'
+    ATTEMPTS_LEFT_TO_REACH_DATABASE=60
+    until [ $ATTEMPTS_LEFT_TO_REACH_DATABASE -eq 0 ] || DATABASE_ERROR=$(php artisan db:show 2>&1); do
+      if [ $? -eq 255 ]; then
+        # If the Doctrine command exits with 255, an unrecoverable error occurred
+        ATTEMPTS_LEFT_TO_REACH_DATABASE=0
+        break
+      fi
+      sleep 1
+      ATTEMPTS_LEFT_TO_REACH_DATABASE=$((ATTEMPTS_LEFT_TO_REACH_DATABASE - 1))
+      echo "Still waiting for database to be ready... Or maybe the database is not reachable. $ATTEMPTS_LEFT_TO_REACH_DATABASE attempts left."
+    done
+
+    if [ $ATTEMPTS_LEFT_TO_REACH_DATABASE -eq 0 ]; then
+      echo 'The database is not up or not reachable:'
+      echo "$DATABASE_ERROR"
+      exit 1
+    else
+      echo 'The database is now ready and reachable'
+    fi
+
+    if [ "$( find ./database/migrations -iname '*.php' -print -quit )" ]; then
+      php artisan migrate --force
+    fi
   fi
 
   echo 'Laravel ready!'
