@@ -37,7 +37,7 @@ COPY --link --chmod=755 frankenphp/docker-entrypoint.sh /usr/local/bin/docker-en
 ENTRYPOINT ["docker-entrypoint"]
 
 HEALTHCHECK CMD curl --fail http://localhost:2019/metrics || exit 1
-CMD php artisan octane:frankenphp --host=localhost --port=443 --https --http-redirect
+CMD php artisan octane:frankenphp --host=$HOST --port=443 --https --http-redirect
 
 # Dev FrankenPHP image
 FROM frankenphp_base AS frankenphp_dev
@@ -70,7 +70,7 @@ ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
 COPY --link frankenphp/conf.d/20-app.dev.ini $PHP_INI_DIR/conf.d/
 
-CMD php artisan octane:frankenphp --host=localhost --port=443 --https --http-redirect --workers=1 --max-requests=1 --watch --poll
+CMD php artisan octane:frankenphp --host=$HOST --port=443 --https --http-redirect --workers=1 --max-requests=1 --watch --poll
 
 # Prod FrankenPHP image
 FROM frankenphp_base AS frankenphp_prod
