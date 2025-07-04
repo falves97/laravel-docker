@@ -1,12 +1,22 @@
 #syntax=docker/dockerfile:1
 
 # Versions
+ARG NODE_VERSION=22.17.0
+
 FROM dunglas/frankenphp:1-php8.4 AS frankenphp_upstream
+
+# Node.js base image
+FROM node:${NODE_VERSION}-slim AS node_base
+
 # Base FrankenPHP image
 FROM frankenphp_upstream AS frankenphp_base
 WORKDIR /app
 
 ENV HOST=localhost
+
+# Install Node.js
+COPY --link --from=node_base /usr/local/ /usr/local/
+COPY --link --from=node_base /opt/ /opt/
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
 	acl \
@@ -51,23 +61,6 @@ RUN set -eux; \
       xdebug \
 	;
 
-# Install Node.js
-RUN mkdir /usr/local/nvm
-
-ENV NVM_DIR /usr/local/nvm
-
-ARG NODE_VERSION=22.15.0
-
-RUN curl https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash \
-    && . $NVM_DIR/nvm.sh \
-    && nvm install $NODE_VERSION \
-    && nvm alias default $NODE_VERSION \
-    && nvm use default \
-    ;
-
-ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
-ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
-
 COPY --link frankenphp/conf.d/20-app.dev.ini $PHP_INI_DIR/conf.d/
 
 CMD php artisan octane:frankenphp --host=$HOST --port=443 --https --http-redirect --workers=1 --max-requests=1 --watch --poll
@@ -87,17 +80,18 @@ COPY --link --chmod=0644 frankenphp/crontab /etc/cron.d/cron
 RUN touch /var/log/cron.log
 
 # prevent the reinstallation of vendors at every changes in the source code
-COPY --link composer.* ./
+COPY --link composer.* package*.json ./
 
 RUN set -eux; \
-	composer install --no-cache --prefer-dist --no-dev --no-autoloader --no-scripts --no-progress \
+	composer install --no-cache --prefer-dist --no-dev --no-autoloader --no-scripts --no-progress && \
+    npm ic \
     ;
-
-COPY --link --from=node_base /app/public/build/ public/build
 
 # copy sources
 COPY --link . ./
 RUN rm -Rf frankenphp/
+
+RUN npm run build && rm -rf node_modules/
 
 RUN set -eux; \
     mkdir -p  \
