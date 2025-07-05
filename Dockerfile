@@ -1,8 +1,8 @@
 #syntax=docker/dockerfile:1
 
-# Versions
 ARG NODE_VERSION=22.17.0
 
+# Versions
 FROM dunglas/frankenphp:1-php8.4 AS frankenphp_upstream
 
 # Node.js base image
@@ -15,10 +15,8 @@ WORKDIR /app
 
 ENV HOST=localhost
 
-# Install Node.js
-COPY --link --from=node_base /usr/local/ /usr/local/
-COPY --link --from=node_base /opt/ /opt/
-
+# persistent / runtime deps
+# hadolint ignore=DL3008
 RUN apt-get update && apt-get install -y --no-install-recommends \
 	acl \
     cron \
@@ -45,10 +43,14 @@ RUN install-php-extensions pdo_pgsql
 COPY --link frankenphp/conf.d/10-app.ini $PHP_INI_DIR/app.conf.d/
 COPY --link --chmod=755 frankenphp/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
 
+# Install Node.js
+COPY --link --from=node_base /usr/local/ /usr/local/
+COPY --link --from=node_base /opt/ /opt/
+
 ENTRYPOINT ["docker-entrypoint"]
 
 HEALTHCHECK CMD curl --fail http://localhost:2019/metrics || exit 1
-CMD php artisan octane:frankenphp --host=$HOST --port=443 --https --http-redirect
+CMD ["sh", "-c", "php artisan octane:frankenphp --host=$HOST --port=443 --https --http-redirect"]
 
 # Dev FrankenPHP image
 FROM frankenphp_base AS frankenphp_dev
@@ -64,7 +66,7 @@ RUN set -eux; \
 
 COPY --link frankenphp/conf.d/20-app.dev.ini $PHP_INI_DIR/conf.d/
 
-CMD php artisan octane:frankenphp --host=$HOST --port=443 --https --http-redirect --workers=1 --max-requests=1 --watch --poll
+CMD ["sh", "-c", "php artisan octane:frankenphp --host=$HOST --port=443 --https --http-redirect --workers=1 --max-requests=1 --watch --poll"]
 
 # Prod FrankenPHP image
 FROM frankenphp_base AS frankenphp_prod
