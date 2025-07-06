@@ -28,7 +28,7 @@ desenvolvimento local, como XDebug, e para deploy em produção com otimização
 1. Construa e inicie os containers Docker:
     ```sh
     docker compose build --no-cache
-    docker compose up --pull always -d --wait
+    docker compose up -d --pull always --wait
     ```
 
 2. Acesse o ambiente de desenvolvimento e aceite o certificado SSL autoassinado:
@@ -47,6 +47,10 @@ desenvolvimento local, como XDebug, e para deploy em produção com otimização
 
 Sinta-se à vontade para contribuir com este projeto. Faça um fork do repositório, crie uma branch para suas alterações e
 envie um pull request.
+
+## Créditos
+Este template é inspirado e baseado no projeto [Symfony Docker](https://github.com/dunglas/symfony-docker) e adaptado para Laravel com FrankenPHP e Octane.
+Agradecimentos especiais a [dunglas](https://github.com/dunglas) e à comunidade Symfony por suas contribuições.
 
 ## Licença
 
