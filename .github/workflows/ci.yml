@@ -55,7 +55,7 @@ jobs:
 
       - name: Run PHPUnit
         if: false # Remove this line if PHPUnit is installed
-        run: docker compose exec -T php bin/phpunit
+        run: docker compose exec -T APP_ENV=testing php artisan --env=testing test
 
   lint:
     name: Docker Lint
