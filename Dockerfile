@@ -92,9 +92,8 @@ RUN set -eux; \
 
 # copy sources
 COPY --link . ./
-RUN rm -Rf frankenphp/
 
-RUN npm run build && rm -rf node_modules/
+RUN npm run build && rm -rf node_modules/ frankenphp/
 
 RUN set -eux; \
     mkdir -p  \
